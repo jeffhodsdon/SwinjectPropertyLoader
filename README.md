@@ -66,18 +66,18 @@ Then run `pod install` command. For details of the installation and usage of Coc
 Properties are values that can be loaded from resources that are bundled with your application/framework.
 Properties can then be used when assembling definitions in your container.
 
-There are 3 types of supported property formats:
+There are 4 types of supported property loaders:
 
- - JSON (`JsonPropertyLoader`)
- - Plist (`PlistPropertyLoader`)
- - TOML (`TomlPropertyLoader`)
+ - JSON (`JsonPropertyLoader`) - Load from JSON files
+ - Plist (`PlistPropertyLoader`) - Load from Plist files
+ - TOML (`TomlPropertyLoader`) - Load from TOML files with dot notation
+ - Struct (`StructPropertyLoader`) - Load from Swift struct/class instances using reflection
 
-Each format supports the types specified by the format itself. If JSON format is used
-then your basic types: `Bool`, `Int`, `Double`, `String`, `Array` and `Dictionary` are
-supported. For Plist, all types supported by the Plist are supported which include all
-JSON types plus `NSDate` and `NSData`. For TOML, all TOML types are supported including
-integers, floats, booleans, strings, dates, arrays, and tables (which are flattened to
-dot-notation keys for easy property access).
+Each loader supports different value types:
+- **JSON**: `Bool`, `Int`, `Double`, `String`, `Array`, `Dictionary` (with comment support)
+- **Plist**: All JSON types plus `NSDate` and `NSData`
+- **TOML**: All TOML types (integers, floats, booleans, strings, dates, arrays, tables) - nested tables are auto-flattened to dot notation
+- **Struct**: All Swift types via reflection - nested structs/classes are auto-flattened to dot notation
 
 JSON and TOML property files support comments which allow you to provide more context to
 your properties besides your property key names.
@@ -140,6 +140,15 @@ try container.applyPropertyLoader(tomlLoader)
 let tomlURL = documentsURL.appendingPathComponent("config.toml")
 let tomlURLLoader = TomlPropertyLoader(url: tomlURL)
 try container.applyPropertyLoader(tomlURLLoader)
+
+// Load from Swift struct/class using reflection (no file needed!)
+struct AppConfig: Sendable {
+    let apiKey = "secret123"
+    let timeout = 30
+}
+let config = AppConfig()
+let structLoader = StructPropertyLoader(config)
+try container.applyPropertyLoader(structLoader)
 ```
 
 The URL-based loading allows you to load properties from anywhere in the file system, making it useful for:
@@ -291,6 +300,49 @@ container.register(PricingService.self) { r in
     return service
 }
 ```
+
+### Struct Reflection Example
+
+For type-safe, programmatic configuration without external files, use `StructPropertyLoader`:
+
+```swift
+// Define a configuration struct
+struct AppConfig: Sendable {
+    struct API: Sendable {
+        let baseURL = "https://api.example.com"
+        let timeout = 30
+        let apiKey = "secret123"
+    }
+
+    let api = API()
+    let appName = "MyApp"
+    let debugMode = false
+}
+
+// Load properties from struct instance
+let config = AppConfig()
+let loader = StructPropertyLoader(config)
+try container.applyPropertyLoader(loader)
+
+// Access with dot notation (nested structs are auto-flattened)
+container.register(APIClient.self) { r in
+    let client = APIClient()
+    client.baseURL = r.property("api.baseURL")!     // "https://api.example.com"
+    client.timeout = r.property("api.timeout")!     // 30
+    client.apiKey = r.property("api.apiKey")!       // "secret123"
+    return client
+}
+
+let appName: String? = container.property("appName")         // "MyApp"
+let debugMode: Bool? = container.property("debugMode")       // false
+```
+
+**Benefits of StructPropertyLoader:**
+- **Type-safe**: Compile-time checking of property types
+- **No files**: Pure Swift configuration, no external resources
+- **Dot notation**: Nested structs automatically flatten (like TOML)
+- **Testing**: Perfect for default configs and test fixtures
+- **Optionals**: Nil optionals are automatically skipped
 
 ## Contributors
 
