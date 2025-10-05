@@ -88,3 +88,33 @@ func loadDataFromURL(_ url: URL) throws -> Data {
         throw PropertyLoaderError.invalidResourceDataFormatURL(url: url)
     }
 }
+
+/// Helper function to flatten a nested dictionary into dot-notation keys.
+/// Used by TOML loader to convert nested tables into flat property keys.
+///
+/// Example:
+///   Input:  ["api": ["base_url": "https://example.com", "timeout": 30]]
+///   Output: ["api.base_url": "https://example.com", "api.timeout": 30]
+///
+/// - Parameter dict: the nested dictionary to flatten
+/// - Parameter prefix: the current key prefix (used for recursion)
+///
+/// - Returns: flattened dictionary with dot-notation keys
+func flattenDictionary(_ dict: [String: Any], prefix: String = "") -> [String: Any] {
+    var result = [String: Any]()
+
+    for (key, value) in dict {
+        let newKey = prefix.isEmpty ? key : "\(prefix).\(key)"
+
+        if let nestedDict = value as? [String: Any] {
+            // Recursively flatten nested dictionaries
+            let flattened = flattenDictionary(nestedDict, prefix: newKey)
+            result.merge(flattened) { _, new in new }
+        } else {
+            // Store the value with flattened key
+            result[newKey] = value
+        }
+    }
+
+    return result
+}

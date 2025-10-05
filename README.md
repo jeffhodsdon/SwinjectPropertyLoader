@@ -66,19 +66,23 @@ Then run `pod install` command. For details of the installation and usage of Coc
 Properties are values that can be loaded from resources that are bundled with your application/framework.
 Properties can then be used when assembling definitions in your container.
 
-There are 2 types of support property formats:
+There are 3 types of supported property formats:
 
  - JSON (`JsonPropertyLoader`)
  - Plist (`PlistPropertyLoader`)
+ - TOML (`TomlPropertyLoader`)
 
 Each format supports the types specified by the format itself. If JSON format is used
 then your basic types: `Bool`, `Int`, `Double`, `String`, `Array` and `Dictionary` are
 supported. For Plist, all types supported by the Plist are supported which include all
-JSON types plus `NSDate` and `NSData`.
+JSON types plus `NSDate` and `NSData`. For TOML, all TOML types are supported including
+integers, floats, booleans, strings, dates, arrays, and tables (which are flattened to
+dot-notation keys for easy property access).
 
-JSON property files also support comments which allow you to provide more context to
-your properties besides your property key names. For example:
+JSON and TOML property files support comments which allow you to provide more context to
+your properties besides your property key names.
 
+**JSON comments:**
 ```js
 {
     // Comment type 1
@@ -94,20 +98,48 @@ your properties besides your property key names. For example:
 }
 ```
 
+**TOML comments and nested tables:**
+```toml
+# TOML natively supports comments
+foo = "bar"
+baz = 100
+
+# Nested tables are automatically flattened to dot notation
+[api]
+base_url = "https://api.example.com"
+timeout = 30
+
+[packages.unlimited]
+cost = 99.99
+features = ["feature1", "feature2"]
+```
+
+TOML nested tables are automatically flattened, so `[api]` with `base_url = "..."` becomes
+accessible as `r.property("api.base_url")` in your container.
+
 Loading properties into the container is as simple as:
 
 ```swift
 let container = Container()
 
 // Load from bundle (traditional approach)
-let loader = JsonPropertyLoader(bundle: .main, name: "properties")
-try container.applyPropertyLoader(loader)
+let jsonLoader = JsonPropertyLoader(bundle: .main, name: "properties")
+try container.applyPropertyLoader(jsonLoader)
 
 // Or load from a URL (decoupled from bundle)
 let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 let configURL = documentsURL.appendingPathComponent("config.json")
 let urlLoader = JsonPropertyLoader(url: configURL)
 try container.applyPropertyLoader(urlLoader)
+
+// Load TOML with automatic dot notation for nested tables
+let tomlLoader = TomlPropertyLoader(bundle: .main, name: "config")
+try container.applyPropertyLoader(tomlLoader)
+
+// TOML from URL
+let tomlURL = documentsURL.appendingPathComponent("config.toml")
+let tomlURLLoader = TomlPropertyLoader(url: tomlURL)
+try container.applyPropertyLoader(tomlURLLoader)
 ```
 
 The URL-based loading allows you to load properties from anywhere in the file system, making it useful for:
@@ -208,6 +240,57 @@ And:
 ```
 
 The resulting value for `items` would be: `[ "hello from B" ]`
+
+### TOML Dot Notation Example
+
+TOML's nested table structure is particularly useful for organizing hierarchical configuration:
+
+```toml
+# config.toml
+[api]
+base_url = "https://api.example.com"
+timeout = 30
+api_key = "secret123"
+
+[database]
+host = "localhost"
+port = 5432
+name = "myapp"
+
+[packages.unlimited]
+cost = 99.99
+features = ["feature1", "feature2", "feature3"]
+
+[packages.basic]
+cost = 9.99
+features = ["feature1"]
+```
+
+This automatically becomes accessible via dot notation:
+
+```swift
+container.register(APIClient.self) { r in
+    let client = APIClient()
+    client.baseURL = r.property("api.base_url")      // "https://api.example.com"
+    client.timeout = r.property("api.timeout")        // 30
+    client.apiKey = r.property("api.api_key")        // "secret123"
+    return client
+}
+
+container.register(Database.self) { r in
+    let db = Database()
+    db.host = r.property("database.host")!           // "localhost"
+    db.port = r.property("database.port")!           // 5432
+    db.name = r.property("database.name")!           // "myapp"
+    return db
+}
+
+container.register(PricingService.self) { r in
+    let service = PricingService()
+    service.unlimitedCost = r.property("packages.unlimited.cost")!  // 99.99
+    return service
+}
+```
 
 ## Contributors
 

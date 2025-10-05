@@ -1,0 +1,25 @@
+# First TOML configuration file
+# This file demonstrates nested tables and dot notation
+
+[test]
+string = "first"
+int = 100
+double = 30.50
+bool = true
+array = ["item1", "item2"]
+
+[test.dict]
+key1 = "item1"
+key2 = "item2"
+
+[api]
+base_url = "https://api.example.com"
+timeout = 30
+
+[packages.unlimited]
+cost = 99.99
+features = ["feature1", "feature2", "feature3"]
+
+[packages.basic]
+cost = 9.99
+features = ["feature1"]

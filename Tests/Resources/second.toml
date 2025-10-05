@@ -1,0 +1,14 @@
+# Second TOML configuration file
+# Used for testing property merging
+
+[test]
+string = "second"
+new_value = "added"
+
+[api]
+base_url = "https://override.example.com"
+api_key = "secret123"
+
+[database]
+host = "localhost"
+port = 5432

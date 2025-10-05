@@ -17,12 +17,13 @@ let package = Package(
             targets: ["SwinjectPropertyLoader"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Swinject/Swinject.git", from: "2.9.1")
+        .package(url: "https://github.com/Swinject/Swinject.git", from: "2.9.1"),
+        .package(url: "https://github.com/LebJe/TOMLKit.git", from: "0.6.0")
     ],
     targets: [
         .target(
             name: "SwinjectPropertyLoader",
-            dependencies: ["Swinject"],
+            dependencies: ["Swinject", "TOMLKit"],
             path: "Sources"),
         .testTarget(
             name: "SwinjectPropertyLoaderTests",

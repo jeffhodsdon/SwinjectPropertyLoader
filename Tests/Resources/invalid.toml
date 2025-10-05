@@ -1,0 +1,5 @@
+# Invalid TOML - malformed syntax
+# This should cause a TOML parsing error
+
+[section
+invalid = "missing closing bracket"
