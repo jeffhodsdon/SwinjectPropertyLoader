@@ -142,8 +142,8 @@ class PropertyKeyTests: XCTestCase {
 
     func testAPIConfigurationPattern() throws {
         // Simulate loading API configuration
-        struct Config: Sendable {
-            struct API: Sendable {
+        struct Config {
+            struct API {
                 let baseURL = "https://api.example.com"
                 let timeout = 30
                 let key = "secret123"

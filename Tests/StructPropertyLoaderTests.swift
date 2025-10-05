@@ -63,7 +63,7 @@ struct OptionalConfig {
     let optionalInt: Int? = 42
 }
 
-final class ConfigClass: Sendable {
+final class ConfigClass {
     let setting1: String = "value1"
     let setting2: Int = 100
 }

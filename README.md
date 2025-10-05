@@ -142,7 +142,7 @@ let tomlURLLoader = TomlPropertyLoader(url: tomlURL)
 try container.applyPropertyLoader(tomlURLLoader)
 
 // Load from Swift struct/class using reflection (no file needed!)
-struct AppConfig: Sendable {
+struct AppConfig {
     let apiKey = "secret123"
     let timeout = 30
 }
@@ -307,8 +307,8 @@ For type-safe, programmatic configuration without external files, use `StructPro
 
 ```swift
 // Define a configuration struct
-struct AppConfig: Sendable {
-    struct API: Sendable {
+struct AppConfig {
+    struct API {
         let baseURL = "https://api.example.com"
         let timeout = 30
         let apiKey = "secret123"

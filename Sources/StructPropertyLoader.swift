@@ -11,7 +11,7 @@ import Foundation
 
 /// The StructPropertyLoader will load properties from a Swift struct or class instance using reflection
 /// Nested structs/classes are automatically flattened to dot-notation keys
-final public class StructPropertyLoader<T: Sendable>: PropertyLoader, Sendable {
+final public class StructPropertyLoader<T>: PropertyLoader {
 
     /// The instance to reflect properties from
     private let instance: T
