@@ -344,6 +344,42 @@ let debugMode: Bool? = container.property("debugMode")       // false
 - **Testing**: Perfect for default configs and test fixtures
 - **Optionals**: Nil optionals are automatically skipped
 
+### Type-Safe Property Keys
+
+For better autocomplete, compile-time safety, and refactoring support, use `PropertyKey` instead of strings:
+
+```swift
+// Define your keys (anywhere in any module)
+extension PropertyKey {
+    // Recommended: Explicit constructor (self-documenting)
+    static let apiBaseURL = PropertyKey("api.baseURL")
+    static let apiTimeout = PropertyKey("api.timeout")
+    static let apiKey = PropertyKey("api.key")
+
+    // Alternative: String literal with type annotation (also valid)
+    static let debugMode: PropertyKey = "debug.enabled"
+}
+
+// Type-safe access with autocomplete
+container.register(APIClient.self) { r in
+    let client = APIClient()
+
+    // Type-safe property access
+    client.baseURL = r.property(.apiBaseURL)
+    client.timeout = r.property(.apiTimeout) ?? 30  // Use ?? for defaults
+
+    return client
+}
+```
+
+**Benefits:**
+- ✅ **Autocomplete**: All defined keys appear in Xcode autocomplete
+- ✅ **Type-safe**: Compiler catches typos and missing keys
+- ✅ **Refactoring**: Rename works correctly across your codebase
+- ✅ **Extensible**: Define keys in any module via extensions
+- ✅ **Backward compatible**: String-based API still works
+
+
 ## Contributors
 
 SwinjectPropertyLoader has been originally written by [Mike Owens](https://github.com/mowens).

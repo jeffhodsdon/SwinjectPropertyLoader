@@ -6,6 +6,7 @@
 //  Copyright © 2016 Swinject Contributors. All rights reserved.
 //
 
+import Foundation
 import Swinject
 import ObjectiveC
 
@@ -52,5 +53,27 @@ extension Resolver {
     /// - Returns: The value for the property name
     public func property<Property>(_ name: String) -> Property? {
         return properties[name] as? Property
+    }
+
+    // MARK: - Type-Safe Property Access
+
+    /// Retrieves a property for the given PropertyKey where the receiving property is optional.
+    ///
+    /// This is the type-safe version that provides autocomplete and compile-time checking.
+    ///
+    /// Example:
+    /// ```swift
+    /// extension PropertyKey {
+    ///     static let apiTimeout = PropertyKey("api.timeout")
+    /// }
+    ///
+    /// // Usage
+    /// let timeout: Int? = resolver.property(.apiTimeout)
+    /// ```
+    ///
+    /// - Parameter key: The PropertyKey for the property
+    /// - Returns: The value for the property key, or nil if not found
+    public func property<Property>(_ key: PropertyKey) -> Property? {
+        return properties[key.rawValue] as? Property
     }
 }
