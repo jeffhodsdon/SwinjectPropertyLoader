@@ -76,4 +76,31 @@ extension Resolver {
     public func property<Property>(forKey key: PropertyKey) -> Property? {
         return properties[key.rawValue] as? Property
     }
+
+    /// A string description of all loaded properties for debugging purposes.
+    ///
+    /// Example output:
+    /// ```
+    /// Properties: [
+    ///     "api.baseURL": "https://api.example.com" (String),
+    ///     "api.timeout": 30 (Int),
+    ///     "debug.enabled": true (Bool)
+    /// ]
+    /// ```
+    public var propertiesDescription: String {
+        let props = properties
+
+        guard !props.isEmpty else {
+            return "Properties: []"
+        }
+
+        let sortedKeys = props.keys.sorted()
+        let descriptions = sortedKeys.map { key in
+            let value = props[key]!
+            let typeName = type(of: value)
+            return "    \"\(key)\": \(value) (\(typeName))"
+        }
+
+        return "Properties: [\n" + descriptions.joined(separator: ",\n") + "\n]"
+    }
 }
