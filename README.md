@@ -365,8 +365,8 @@ container.register(APIClient.self) { r in
     let client = APIClient()
 
     // Type-safe property access
-    client.baseURL = r.property(.apiBaseURL)
-    client.timeout = r.property(.apiTimeout) ?? 30  // Use ?? for defaults
+    client.baseURL = r.property(forKey: .apiBaseURL)
+    client.timeout = r.property(forKey: .apiTimeout) ?? 30  // Use ?? for defaults
 
     return client
 }

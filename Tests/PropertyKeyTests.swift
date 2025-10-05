@@ -90,10 +90,10 @@ class PropertyKeyTests: XCTestCase {
         try container.applyPropertyLoader(loader)
 
         // Type-safe access with PropertyKey
-        let stringValue: String? = container.property(.testString)
-        let intValue: Int? = container.property(.testInt)
-        let doubleValue: Double? = container.property(.testDouble)
-        let boolValue: Bool? = container.property(.testBool)
+        let stringValue: String? = container.property(forKey: .testString)
+        let intValue: Int? = container.property(forKey: .testInt)
+        let doubleValue: Double? = container.property(forKey: .testDouble)
+        let boolValue: Bool? = container.property(forKey: .testBool)
 
         XCTAssertEqual(stringValue, "first")
         XCTAssertEqual(intValue, 100)
@@ -106,7 +106,7 @@ class PropertyKeyTests: XCTestCase {
         let loader = JsonPropertyLoader(bundle: .test, name: "first")
         try container.applyPropertyLoader(loader)
 
-        let arrayValue: [String]? = container.property(.testArray)
+        let arrayValue: [String]? = container.property(forKey: .testArray)
         XCTAssertEqual(arrayValue, ["item1", "item2"])
     }
 
@@ -131,7 +131,7 @@ class PropertyKeyTests: XCTestCase {
         try container.applyPropertyLoader(loader)
 
         // Both approaches should return the same value
-        let viaKey: String? = container.property(.testString)
+        let viaKey: String? = container.property(forKey: .testString)
         let viaString: String? = container.property("test.string")
 
         XCTAssertEqual(viaKey, viaString)
@@ -157,8 +157,8 @@ class PropertyKeyTests: XCTestCase {
         try container.applyPropertyLoader(loader)
 
         // Use PropertyKey for type-safe access
-        let baseURL: String? = container.property(.apiBaseURL)
-        let timeout: Int? = container.property(.apiTimeout)
+        let baseURL: String? = container.property(forKey: .apiBaseURL)
+        let timeout: Int? = container.property(forKey: .apiTimeout)
 
         XCTAssertEqual(baseURL, "https://api.example.com")
         XCTAssertEqual(timeout, 30)

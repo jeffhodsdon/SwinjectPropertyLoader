@@ -68,12 +68,12 @@ extension Resolver {
     /// }
     ///
     /// // Usage
-    /// let timeout: Int? = resolver.property(.apiTimeout)
+    /// let timeout: Int? = resolver.property(forKey: .apiTimeout)
     /// ```
     ///
     /// - Parameter key: The PropertyKey for the property
     /// - Returns: The value for the property key, or nil if not found
-    public func property<Property>(_ key: PropertyKey) -> Property? {
+    public func property<Property>(forKey key: PropertyKey) -> Property? {
         return properties[key.rawValue] as? Property
     }
 }
