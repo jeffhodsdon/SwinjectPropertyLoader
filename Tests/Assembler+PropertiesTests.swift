@@ -15,30 +15,30 @@ class Assembler_PropertiesTests: XCTestCase {
         let assembler = try! Assembler(assemblies: [
             PropertyAsssembly()
             ], propertyLoaders: [
-                PlistPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "first")
+                PlistPropertyLoader(bundle: .test, name: "first")
             ])
-        
+
         let cat = assembler.resolver.resolve(Animal.self)
         XCTAssertNotNil(cat)
         XCTAssertEqual(cat!.name, "first")
     }
-    
+
     func testAssemblerWithPropertiesCanNotAssembleWithMissingProperties() {
         XCTAssertThrowsError(try Assembler(assemblies: [PropertyAsssembly()], propertyLoaders: [
-                PlistPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "noexist")
+                PlistPropertyLoader(bundle: .test, name: "noexist")
             ])) { error in
                 XCTAssert(error is PropertyLoaderError)
             }
     }
-    
+
     func testEmptyAssemblerCanCreateEmptyAsemblerAndBuildIt() {
         let assembler = Assembler()
-        
-        let loader = PlistPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "first")
+
+        let loader = PlistPropertyLoader(bundle: .test, name: "first")
         try! assembler.applyPropertyLoader(loader)
-        
+
         assembler.apply(assembly: PropertyAsssembly())
-        
+
         let cat = assembler.resolver.resolve(Animal.self)
         XCTAssertNotNil(cat)
         XCTAssertEqual(cat!.name, "first")

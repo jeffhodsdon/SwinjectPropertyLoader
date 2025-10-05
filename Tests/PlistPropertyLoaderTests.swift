@@ -13,7 +13,7 @@ import SwinjectPropertyLoader
 
 class PlistPropertyLoaderTests: XCTestCase {
     func testMissingResourcesAreHandled() {
-        let loader = PlistPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "noexist")
+        let loader = PlistPropertyLoader(bundle: .test, name: "noexist")
         XCTAssertThrowsError(try loader.load()) { error in
             XCTAssert(error is PropertyLoaderError)
         }

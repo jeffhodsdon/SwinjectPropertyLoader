@@ -7,9 +7,10 @@
 //
 
 import Swinject
+import ObjectiveC
 
 private struct AssociatedKeys {
-    fileprivate static var properties: UInt8 = 0
+    fileprivate nonisolated(unsafe) static var properties: UInt8 = 0
 }
 
 extension Resolver {

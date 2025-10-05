@@ -54,3 +54,37 @@ func loadDataFromBundle(_ bundle: Bundle, withName name: String, ofType type: St
     }
     throw PropertyLoaderError.missingResource(bundle: bundle, name: name)
 }
+
+/// Helper function to load the contents of a URL into a string.
+///
+/// - Parameter url: the URL where the resource exists
+///
+/// - Returns: the contents of the resource as a string
+/// - Throws: PropertyLoaderError if the resource doesn't exist or cannot be read
+func loadStringFromURL(_ url: URL) throws -> String {
+    do {
+        return try String(contentsOf: url, encoding: .utf8)
+    } catch {
+        if (error as NSError).code == NSFileReadNoSuchFileError {
+            throw PropertyLoaderError.missingResourceURL(url: url)
+        }
+        throw PropertyLoaderError.invalidResourceDataFormatURL(url: url)
+    }
+}
+
+/// Helper function to load the contents of a URL into data.
+///
+/// - Parameter url: the URL where the resource exists
+///
+/// - Returns: the contents of the resource as data
+/// - Throws: PropertyLoaderError if the resource doesn't exist or cannot be read
+func loadDataFromURL(_ url: URL) throws -> Data {
+    do {
+        return try Data(contentsOf: url)
+    } catch {
+        if (error as NSError).code == NSFileReadNoSuchFileError {
+            throw PropertyLoaderError.missingResourceURL(url: url)
+        }
+        throw PropertyLoaderError.invalidResourceDataFormatURL(url: url)
+    }
+}

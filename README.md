@@ -6,32 +6,41 @@ SwinjectPropertyLoader
 [![CocoaPods Version](https://img.shields.io/cocoapods/v/SwinjectPropertyLoader.svg?style=flat)](http://cocoapods.org/pods/SwinjectPropertyLoader)
 [![License](https://img.shields.io/cocoapods/l/SwinjectPropertyLoader.svg?style=flat)](http://cocoapods.org/pods/SwinjectPropertyLoader)
 [![Platform](https://img.shields.io/cocoapods/p/SwinjectPropertyLoader.svg?style=flat)](http://cocoapods.org/pods/SwinjectPropertyLoader)
-[![Swift Version](https://img.shields.io/badge/Swift-2.2--3.0.x-F16D39.svg?style=flat)](https://developer.apple.com/swift)
+[![Swift Version](https://img.shields.io/badge/Swift-6.0-F16D39.svg?style=flat)](https://developer.apple.com/swift)
 
 
 SwinjectPropertyLoader is an extension of Swinject to load property values from resources that are bundled with your application or framework.
 
 ## Requirements
 
-- iOS 8.0+ / Mac OS X 10.10+ / watchOS 2.0+ / tvOS 9.0+
-- Swift 2.2 or 2.3
-  - Xcode 7.0+
-- Swift 3.0.x
-  - Xcode 8.0+
-- Carthage 0.18+ (if you use)
-- CocoaPods 1.1.1+ (if you use)
+- iOS 15.0+ / macOS 12.0+ / watchOS 8.0+ / tvOS 15.0+
+- Swift 5.9+
+- Xcode 15.0+
 
 ## Installation
 
-Swinject is available through [Carthage](https://github.com/Carthage/Carthage) or [CocoaPods](https://cocoapods.org).
+### Swift Package Manager
+
+To install SwinjectPropertyLoader using Swift Package Manager, add the following to your `Package.swift` file:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/Swinject/SwinjectPropertyLoader.git", from: "2.0.0")
+]
+```
+
+Or add it through Xcode:
+1. File > Add Package Dependencies...
+2. Enter package URL: `https://github.com/Swinject/SwinjectPropertyLoader.git`
+3. Select version 2.0.0 or later
 
 ### Carthage
 
-To install Swinject with Carthage, add the following line to your `Cartfile`.
+To install SwinjectPropertyLoader with Carthage, add the following line to your `Cartfile`:
 
 ```
-github "Swinject/Swinject" ~> 2.0.0
-github "Swinject/SwinjectPropertyLoader" ~> 1.0.0
+github "Swinject/Swinject" ~> 2.9.1
+github "Swinject/SwinjectPropertyLoader" ~> 2.0.0
 ```
 
 Then run `carthage update --no-use-binaries` command or just `carthage update`. For details of the installation and usage of Carthage, visit [its project page](https://github.com/Carthage/Carthage).
@@ -39,15 +48,15 @@ Then run `carthage update --no-use-binaries` command or just `carthage update`. 
 
 ### CocoaPods
 
-To install Swinject with CocoaPods, add the following lines to your `Podfile`.
+To install SwinjectPropertyLoader with CocoaPods, add the following lines to your `Podfile`:
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '8.0' # or platform :osx, '10.10' if your target is OS X.
+platform :ios, '15.0' # or platform :osx, '12.0' for macOS
 use_frameworks!
 
-pod 'Swinject', '~> 2.0.0'
-pod 'SwinjectPropertyLoader', '~> 1.0.0'
+pod 'Swinject', '~> 2.9.1'
+pod 'SwinjectPropertyLoader', '~> 2.0.0'
 ```
 
 Then run `pod install` command. For details of the installation and usage of CocoaPods, visit [its official website](https://cocoapods.org).
@@ -90,11 +99,22 @@ Loading properties into the container is as simple as:
 ```swift
 let container = Container()
 
-// will load "properties.json" from the main app bundle
-let loader = JsonPropertyLoader(bundle: .mainBundle(), name: "properties")
+// Load from bundle (traditional approach)
+let loader = JsonPropertyLoader(bundle: .main, name: "properties")
+try container.applyPropertyLoader(loader)
 
-try! container.applyPropertyLoader(loader)
+// Or load from a URL (decoupled from bundle)
+let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+let configURL = documentsURL.appendingPathComponent("config.json")
+let urlLoader = JsonPropertyLoader(url: configURL)
+try container.applyPropertyLoader(urlLoader)
 ```
+
+The URL-based loading allows you to load properties from anywhere in the file system, making it useful for:
+- Downloaded configuration files
+- User-specific settings stored in Documents
+- Temporary configuration files
+- Files in Application Support directory
 
 Now you can inject properties into definitions registered into the container.
 

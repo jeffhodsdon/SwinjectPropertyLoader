@@ -13,14 +13,14 @@ import SwinjectPropertyLoader
 
 class JsonPropertyLoaderTests: XCTestCase {
     func testMissingResourrcesCanBeHandled() {
-        let loader = JsonPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "noexist")
+        let loader = JsonPropertyLoader(bundle: .test, name: "noexist")
         XCTAssertThrowsError(try loader.load()) { error in
             XCTAssert(error is PropertyLoaderError)
         }
     }
-    
+
     func testInvalidResourcesCanBeHandled() {
-        let loader = JsonPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "invalid")
+        let loader = JsonPropertyLoader(bundle: .test, name: "invalid")
         XCTAssertThrowsError(try loader.load()) { error in
             XCTAssert(error is PropertyLoaderError)
         }

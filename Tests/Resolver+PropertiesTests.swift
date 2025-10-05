@@ -20,7 +20,7 @@ class Resolver_PropertiesTests: XCTestCase {
     // MARK: JSON properties"
     
     func testJsonPropertiesCanLoadFromSingleLoader() {
-        let loader = JsonPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "first")
+        let loader = JsonPropertyLoader(bundle: .test, name: "first")
         try! container.applyPropertyLoader(loader)
         
         container.register(Properties.self) { r in
@@ -91,8 +91,8 @@ class Resolver_PropertiesTests: XCTestCase {
     }
     
     func testJsonPropertiesCanLoadFromMultipleLoaders() {
-        let loader = JsonPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "first")
-        let loader2 = JsonPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "second")
+        let loader = JsonPropertyLoader(bundle: .test, name: "first")
+        let loader2 = JsonPropertyLoader(bundle: .test, name: "second")
         try! container.applyPropertyLoader(loader)
         try! container.applyPropertyLoader(loader2)
         
@@ -112,7 +112,7 @@ class Resolver_PropertiesTests: XCTestCase {
     // MARK: Plist properties
     
     func testPlistPropertiesCanLoadFromSingleLoader() {
-        let loader = PlistPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "first")
+        let loader = PlistPropertyLoader(bundle: .test, name: "first")
         try! container.applyPropertyLoader(loader)
         
         container.register(Properties.self) { r in
@@ -183,8 +183,8 @@ class Resolver_PropertiesTests: XCTestCase {
     }
     
     func testPlistPropertiesCanLoadFromMultipleLoaders() {
-        let loader = PlistPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "first")
-        let loader2 = PlistPropertyLoader(bundle: Bundle(for: type(of: self).self), name: "second")
+        let loader = PlistPropertyLoader(bundle: .test, name: "first")
+        let loader2 = PlistPropertyLoader(bundle: .test, name: "second")
         try! container.applyPropertyLoader(loader)
         try! container.applyPropertyLoader(loader2)
         

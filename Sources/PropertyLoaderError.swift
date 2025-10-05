@@ -13,14 +13,20 @@ import Foundation
 ///
 /// - InvalidJSONFormat:         The JSON format of the properties file is incorrect. Must be top-level dictionary
 /// - InvalidPlistFormat:        The Plist format of the properties file is incorrect. Must be top-level dictionary
-/// - MissingResource:           The resource is missing from the bundle
-/// - InvalidResourceDataFormat: The resource cannot be converted to NSData
+/// - MissingResource:           The resource is missing from the bundle or URL
+/// - InvalidResourceDataFormat: The resource cannot be converted to Data
 ///
-public enum PropertyLoaderError: Error {
+public enum PropertyLoaderError: Error, Sendable {
     case invalidJSONFormat(bundle: Bundle, name: String)
     case invalidPlistFormat(bundle: Bundle, name: String)
     case missingResource(bundle: Bundle, name: String)
     case invalidResourceDataFormat(bundle: Bundle, name: String)
+
+    // URL-based errors
+    case invalidJSONFormatURL(url: URL)
+    case invalidPlistFormatURL(url: URL)
+    case missingResourceURL(url: URL)
+    case invalidResourceDataFormatURL(url: URL)
 }
 
 // MARK: - CustomStringConvertible
@@ -35,6 +41,14 @@ extension PropertyLoaderError: CustomStringConvertible {
             return "Missing resource for bundle: \(bundle), name: \(name)"
         case .invalidResourceDataFormat(let bundle, let name):
             return "Invalid resource format for bundle: \(bundle), name: \(name)"
+        case .invalidJSONFormatURL(let url):
+            return "Invalid JSON format for URL: \(url). Must be top-level dictionary"
+        case .invalidPlistFormatURL(let url):
+            return "Invalid Plist format for URL: \(url). Must be top-level dictionary"
+        case .missingResourceURL(let url):
+            return "Missing resource at URL: \(url)"
+        case .invalidResourceDataFormatURL(let url):
+            return "Invalid resource format at URL: \(url)"
         }
     }
 }

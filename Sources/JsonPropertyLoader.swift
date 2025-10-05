@@ -10,24 +10,39 @@ import Foundation
 
 
 /// The JsonPropertyLoader will load properties from JSON resources
-final public class JsonPropertyLoader {
-    
+final public class JsonPropertyLoader: Sendable {
+
     /// the bundle where the resource exists (defaults to mainBundle)
-    fileprivate let bundle: Bundle
-    
+    fileprivate let bundle: Bundle?
+
     /// the name of the JSON resource. For example, if your resource is "properties.json" then this value will be set to "properties"
-    fileprivate let name: String
-    
+    fileprivate let name: String?
+
+    /// the URL where the resource exists (used instead of bundle if provided)
+    fileprivate let url: URL?
+
     ///
-    /// Will create a JSON property loader
+    /// Will create a JSON property loader from a bundle resource
     ///
     /// - parameter bundle: the bundle where the resource exists (defaults to mainBundle)
-    /// - parameter name:   the name of the JSON resource. For example, if your resource is "properties.json" 
+    /// - parameter name:   the name of the JSON resource. For example, if your resource is "properties.json"
     ///                     then this value will be set to "properties"
     ///
-    public init(bundle: Bundle? = Bundle.main, name: String) {
-        self.bundle = bundle!
+    public init(bundle: Bundle = .main, name: String) {
+        self.bundle = bundle
         self.name = name
+        self.url = nil
+    }
+
+    ///
+    /// Will create a JSON property loader from a URL
+    ///
+    /// - parameter url: the URL where the JSON resource exists
+    ///
+    public init(url: URL) {
+        self.bundle = nil
+        self.name = nil
+        self.url = url
     }
     
     /// Will strip the provide string of comments. This allows JSON property files to contain comments as it
@@ -59,15 +74,35 @@ final public class JsonPropertyLoader {
 // MARK: - PropertyLoadable
 extension JsonPropertyLoader: PropertyLoader {
     public func load() throws -> [String: Any] {
-        let contents = try loadStringFromBundle(bundle, withName: name, ofType: "json")
+        let contents: String
+
+        if let url = url {
+            // Load from URL
+            contents = try loadStringFromURL(url)
+        } else if let bundle = bundle, let name = name {
+            // Load from bundle
+            contents = try loadStringFromBundle(bundle, withName: name, ofType: "json")
+        } else {
+            fatalError("JsonPropertyLoader must be initialized with either a URL or bundle+name")
+        }
+
         let jsonWithoutComments = stringWithoutComments(contents)
-        let data = jsonWithoutComments.data(using: String.Encoding.utf8)
-        
-        let json = try? JSONSerialization.jsonObject(with: data!, options: [])
+        guard let data = jsonWithoutComments.data(using: .utf8) else {
+            if let url = url {
+                throw PropertyLoaderError.invalidJSONFormatURL(url: url)
+            } else {
+                throw PropertyLoaderError.invalidJSONFormat(bundle: bundle!, name: name!)
+            }
+        }
+
+        let json = try JSONSerialization.jsonObject(with: data, options: [])
         guard let props = json as? [String: Any] else {
-            throw PropertyLoaderError.invalidJSONFormat(bundle: bundle, name: name)
+            if let url = url {
+                throw PropertyLoaderError.invalidJSONFormatURL(url: url)
+            } else {
+                throw PropertyLoaderError.invalidJSONFormat(bundle: bundle!, name: name!)
+            }
         }
         return props
-        
     }
 }
